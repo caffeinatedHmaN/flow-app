@@ -10,6 +10,8 @@ import 'screens/settings_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+  final savedTheme = prefs.getString('theme') ?? 'deerflow';
+  FlowColors.applyTheme(savedTheme);
   runApp(FlowApp(prefs: prefs));
 }
 
@@ -22,7 +24,20 @@ class FlowApp extends StatelessWidget {
     return MaterialApp(
       title: 'FLOW',
       debugShowCheckedModeBanner: false,
-      theme: FlowTheme.deerflow(),
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness:
+            FlowColors.bg.computeLuminance() > 0.5
+                ? Brightness.light
+                : Brightness.dark,
+        scaffoldBackgroundColor: FlowColors.bg,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: FlowColors.accent,
+          brightness: FlowColors.bg.computeLuminance() > 0.5
+              ? Brightness.light
+              : Brightness.dark,
+        ),
+      ),
       home: RootShell(prefs: prefs),
     );
   }
@@ -41,7 +56,7 @@ class _RootShellState extends State<RootShell> {
 
   @override
   Widget build(BuildContext context) {
-    final screens = [
+    final screens = <Widget>[
       DashboardScreen(prefs: widget.prefs),
       TimerScreen(prefs: widget.prefs),
       TasksScreen(prefs: widget.prefs),
@@ -78,7 +93,9 @@ class _RootShellState extends State<RootShell> {
   Widget _navItem(int idx, IconData icon, IconData activeIcon) {
     final selected = _index == idx;
     return GestureDetector(
-      onTap: () => setState(() => _index = idx),
+      onTap: () {
+        setState(() => _index = idx);
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
@@ -88,7 +105,10 @@ class _RootShellState extends State<RootShell> {
           shape: BoxShape.circle,
           color: selected ? FlowColors.accent : Colors.transparent,
           boxShadow: selected
-              ? [BoxShadow(color: FlowColors.accent.withOpacity(0.5), blurRadius: 20)]
+              ? [
+                  BoxShadow(
+                      color: FlowColors.accent.withOpacity(0.5), blurRadius: 20)
+                ]
               : null,
         ),
         child: Icon(
