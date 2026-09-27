@@ -52,6 +52,7 @@ class _TimerScreenState extends State<TimerScreen> {
     });
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      if (_startedAt == null) return;
       final elapsed = DateTime.now().difference(_startedAt!).inMilliseconds / 1000;
       final remaining = _durationFor(_mode) - elapsed;
       if (remaining <= 0) {
@@ -85,8 +86,12 @@ class _TimerScreenState extends State<TimerScreen> {
         final today = widget.prefs.getInt('today_minutes') ?? 0;
         widget.prefs.setInt('today_minutes', today + _workMinutes);
         _lapIndex++;
-        _mode = _lapIndex >= _longBreakAfter ? 'long' : 'short';
-        if (_lapIndex >= _longBreakAfter) _lapIndex = 0;
+        if (_lapIndex >= _longBreakAfter) {
+          _mode = 'long';
+          _lapIndex = 0;
+        } else {
+          _mode = 'short';
+        }
       } else {
         _mode = 'work';
       }
@@ -139,14 +144,16 @@ class _TimerScreenState extends State<TimerScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('POMODORO',
-                    style: GoogleFonts.doto(
+                    style: GoogleFonts.getFont(
+                      'Doto',
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 2,
                       color: FlowColors.textPrimary,
                     )),
                 Text(_running ? 'RUNNING' : 'ARMED',
-                    style: GoogleFonts.doto(
+                    style: GoogleFonts.getFont(
+                      'Doto',
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.5,
@@ -175,7 +182,8 @@ class _TimerScreenState extends State<TimerScreen> {
               child: Column(
                 children: [
                   Text(_modeLabel,
-                      style: GoogleFonts.doto(
+                      style: GoogleFonts.getFont(
+                        'Doto',
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 2.5,
@@ -183,7 +191,8 @@ class _TimerScreenState extends State<TimerScreen> {
                       )),
                   const SizedBox(height: 12),
                   Text(_fmt(_remainingSec),
-                      style: GoogleFonts.doto(
+                      style: GoogleFonts.getFont(
+                        'Doto',
                         fontSize: 88,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -4,
@@ -191,7 +200,8 @@ class _TimerScreenState extends State<TimerScreen> {
                       )),
                   const SizedBox(height: 20),
                   Text('LAPS COMPLETED $_lapsCompleted',
-                      style: GoogleFonts.doto(
+                      style: GoogleFonts.getFont(
+                        'Doto',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 2,
@@ -209,13 +219,18 @@ class _TimerScreenState extends State<TimerScreen> {
                         height: 14,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: done ? FlowColors.textPrimary : Colors.transparent,
+                          color:
+                              done ? FlowColors.textPrimary : Colors.transparent,
                           border: Border.all(
                             color: current ? FlowColors.accent : FlowColors.border,
                             width: current ? 2 : 1,
                           ),
                           boxShadow: current
-                              ? [BoxShadow(color: FlowColors.accent.withOpacity(0.6), blurRadius: 10)]
+                              ? [
+                                  BoxShadow(
+                                      color: FlowColors.accent.withOpacity(0.6),
+                                      blurRadius: 10)
+                                ]
                               : null,
                         ),
                       );
@@ -237,7 +252,8 @@ class _TimerScreenState extends State<TimerScreen> {
                       border: Border.all(color: FlowColors.border),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.refresh, color: FlowColors.textSecondary, size: 20),
+                    child: Icon(Icons.refresh,
+                        color: FlowColors.textSecondary, size: 20),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -250,7 +266,9 @@ class _TimerScreenState extends State<TimerScreen> {
                         color: FlowColors.accent,
                         borderRadius: BorderRadius.circular(999),
                         boxShadow: [
-                          BoxShadow(color: FlowColors.accent.withOpacity(0.4), blurRadius: 30),
+                          BoxShadow(
+                              color: FlowColors.accent.withOpacity(0.4),
+                              blurRadius: 30)
                         ],
                       ),
                       alignment: Alignment.center,
@@ -260,7 +278,8 @@ class _TimerScreenState extends State<TimerScreen> {
                             : _mode == 'work'
                                 ? 'START FOCUS'
                                 : 'START BREAK',
-                        style: GoogleFonts.doto(
+                        style: GoogleFonts.getFont(
+                          'Doto',
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.4,
@@ -292,7 +311,8 @@ class _TimerScreenState extends State<TimerScreen> {
           ),
           alignment: Alignment.center,
           child: Text(label,
-              style: GoogleFonts.doto(
+              style: GoogleFonts.getFont(
+                'Doto',
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.2,
